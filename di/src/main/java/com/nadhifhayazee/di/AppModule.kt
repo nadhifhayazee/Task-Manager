@@ -5,8 +5,10 @@ import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
 import com.nadhifhayazee.data.cache.SharedPrefManager
+import com.nadhifhayazee.data.repository.TaskRepositoryImpl
 import com.nadhifhayazee.data.repository.UserRepositoryImpl
 import com.nadhifhayazee.domain.cache.LocalCache
+import com.nadhifhayazee.domain.repository.TaskRepository
 import com.nadhifhayazee.domain.repository.UserRepository
 import dagger.Module
 import dagger.Provides
@@ -27,15 +29,21 @@ class AppModule {
 
     @Provides
     @Singleton
+    fun provideSharedPrefManager(
+        @ApplicationContext context: Context
+    ): LocalCache {
+        return SharedPrefManager(context)
+    }
+
+    @Provides
+    @Singleton
     fun provideUserRepository(firebaseDb: FirebaseFirestore): UserRepository {
         return UserRepositoryImpl(firebaseDb)
     }
 
     @Provides
     @Singleton
-    fun provideSharedPrefManager(
-        @ApplicationContext context: Context
-    ): LocalCache {
-        return SharedPrefManager(context)
+    fun provideTaskRepository(firebaseDb: FirebaseFirestore): TaskRepository {
+        return TaskRepositoryImpl(firebaseDb)
     }
 }

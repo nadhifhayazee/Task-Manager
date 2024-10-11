@@ -1,7 +1,10 @@
 package com.nadhifhayazee.domain.dto
 
+import com.google.firebase.firestore.DocumentSnapshot
+
 
 data class ResponseTask(
+    val id: String,
     val subject: String,
     val description: String,
     val status: String,
@@ -9,13 +12,14 @@ data class ResponseTask(
     val documentUrl: String
 ) {
     companion object {
-        fun convertFromMap(data: Map<String, Any>): ResponseTask {
+        fun convertFromMap(document: DocumentSnapshot): ResponseTask {
             return ResponseTask(
-                data["subject"].toString(),
-                data["description"].toString(),
-                data["status"].toString(),
-                data["dateTime"].toString(),
-                data["documentUrl"].toString()
+                document.id,
+                document.data?.get("subject").toString(),
+                document.data?.get("description").toString(),
+                document.data?.get("status").toString(),
+                document.data?.get("dateTime").toString(),
+                document.data?.get("documentUrl").toString()
             )
         }
     }
