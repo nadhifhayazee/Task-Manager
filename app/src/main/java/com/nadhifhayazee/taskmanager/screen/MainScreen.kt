@@ -1,6 +1,8 @@
 package com.nadhifhayazee.taskmanager.screen
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
@@ -30,7 +32,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.nadhifhayazee.domain.cache.LocalCache
 import com.nadhifhayazee.taskmanager.screen.gallery.GalleryScreen
 import com.nadhifhayazee.taskmanager.screen.home.HomeScreen
 import com.nadhifhayazee.taskmanager.screen.login.LoginScreen
@@ -63,8 +64,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 }
             }
         ) { paddingValue ->
-            val padding = paddingValue
-            NavigationHost(navController)
+            NavigationHost(navController, paddingValue)
         }
 
     }
@@ -126,7 +126,7 @@ fun BottomNavigationBar(navController: NavHostController) {
 }
 
 @Composable
-fun NavigationHost(navController: NavHostController) {
+fun NavigationHost(navController: NavHostController, paddingValue: PaddingValues) {
     NavHost(
         navController = navController,
         startDestination = ScreenStart
@@ -150,7 +150,7 @@ fun NavigationHost(navController: NavHostController) {
             })
         }
         composable<ScreenHome> {
-            HomeScreen()
+            HomeScreen(modifier = Modifier.padding(paddingValue))
         }
         composable<ScreenTask> {
             TaskScreen()

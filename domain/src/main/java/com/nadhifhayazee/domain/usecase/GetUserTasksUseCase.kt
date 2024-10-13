@@ -12,13 +12,13 @@ class GetUserTasksUseCase @Inject constructor(
     private val taskRepository: TaskRepository,
     private val localCache: LocalCache
 ) {
-   operator fun invoke(): Flow<ResultState<List<ResponseTask>>> {
+   operator fun invoke(status: String?): Flow<ResultState<List<ResponseTask>>> {
        return flow {
            try {
                if (localCache.getUserId() == null) {
                    emit(ResultState.Error(Exception("No user ID found")))
                } else {
-                   val tasks = taskRepository.getUserTasks(localCache.getUserId()!!)
+                   val tasks = taskRepository.getUserTasks(localCache.getUserId()!!, status)
                    emit(ResultState.Success(tasks))
                }
            } catch (e:Exception) {
