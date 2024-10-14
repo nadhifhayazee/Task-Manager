@@ -1,6 +1,7 @@
 package com.nadhifhayazee.domain.dto
 
 import com.google.firebase.firestore.DocumentSnapshot
+import java.util.Date
 
 
 data class ResponseTask(
@@ -8,7 +9,7 @@ data class ResponseTask(
     val subject: String,
     val description: String,
     val status: String,
-    val dateTime: String,
+    val dateTime: Date?,
     val documentUrl: String
 ) {
     companion object {
@@ -18,7 +19,7 @@ data class ResponseTask(
                 document.data?.get("subject").toString(),
                 document.data?.get("description").toString(),
                 document.data?.get("status").toString(),
-                document.data?.get("dateTime").toString(),
+                document.getTimestamp("dateTime")?.toDate(),
                 document.data?.get("documentUrl").toString()
             )
         }

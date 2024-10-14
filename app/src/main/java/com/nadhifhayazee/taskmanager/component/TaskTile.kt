@@ -1,6 +1,5 @@
 package com.nadhifhayazee.taskmanager.component
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,10 +10,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -26,20 +23,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nadhifhayazee.domain.dto.ResponseTask
-import com.nadhifhayazee.taskmanager.R
 import com.nadhifhayazee.taskmanager.model.TaskStatus
 import com.nadhifhayazee.taskmanager.ui.theme.AppTheme
+import com.nadhifhayazee.taskmanager.util.DateUtil
+import java.util.Date
 
 @Composable
 fun TaskTile(modifier: Modifier = Modifier, task: ResponseTask, onStatusChange: (String) -> Unit) {
@@ -74,13 +69,12 @@ fun TaskTile(modifier: Modifier = Modifier, task: ResponseTask, onStatusChange: 
                 )
                 LabeledText(
                     label = "Date & Time",
-                    value = task.dateTime,
+                    value = if (task.dateTime != null) DateUtil.formatDate(task.dateTime!!) else "-",
                     modifier = Modifier.weight(1f)
                 )
 
             }
 
-            // Row for Status and Description
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -93,9 +87,11 @@ fun TaskTile(modifier: Modifier = Modifier, task: ResponseTask, onStatusChange: 
                     modifier = Modifier.weight(1f)
                 )
                 // Status Dropdown
-                Column(modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                ) {
                     TaskDropdownStatus(
                         selectedStatus = if (selectedStatus == TaskStatus.PENDING.name) TaskStatus.PENDING else if (selectedStatus == TaskStatus.IN_PROGRESS.name) TaskStatus.IN_PROGRESS else TaskStatus.DONE,
                         onStatusChange = { newStatus ->
@@ -107,9 +103,8 @@ fun TaskTile(modifier: Modifier = Modifier, task: ResponseTask, onStatusChange: 
             }
 
             // Row for Document/Photo Thumbnail
-            Row(
+            Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = "Document/Photo",
@@ -118,14 +113,7 @@ fun TaskTile(modifier: Modifier = Modifier, task: ResponseTask, onStatusChange: 
                     modifier = Modifier.padding(end = 8.dp)
                 )
                 if (task.documentUrl.isNotEmpty()) {
-                    Image(
-                        painter = painterResource(R.mipmap.ic_launcher),
-                        contentDescription = "Thumbnail",
-                        modifier = Modifier
-                            .size(64.dp)
-                            .padding(4.dp),
-                        contentScale = ContentScale.Crop
-                    )
+                    FileImageView(task.documentUrl)
                 } else {
                     Text(
                         text = "No Document",
@@ -135,20 +123,6 @@ fun TaskTile(modifier: Modifier = Modifier, task: ResponseTask, onStatusChange: 
                 }
             }
         }
-//        Row(
-//            modifier = Modifier.fillMaxWidth(),
-//            horizontalArrangement = Arrangement.SpaceBetween
-//        ) {
-//            Text(
-//                text = task.subject,
-//                style = MaterialTheme.typography.titleSmall,
-//                color = MaterialTheme.colorScheme.onSurface,
-//                fontWeight = FontWeight.Bold,
-//                modifier = modifier
-//                    .fillMaxWidth()
-//                    .weight(1f)
-//            )
-//        }
     }
 }
 
@@ -187,7 +161,8 @@ fun TaskDropdownStatus(
         OutlinedButton(
             modifier = Modifier.fillMaxWidth(),
             onClick = { expanded = true },
-            colors = ButtonDefaults.buttonColors().copy(containerColor = selectedStatus.color.copy(alpha = 0.7f))
+            colors = ButtonDefaults.buttonColors()
+                .copy(containerColor = selectedStatus.color.copy(alpha = 0.7f))
         ) {
             Text(
                 text = selectedStatus.displayName,
@@ -222,7 +197,7 @@ private fun TaskTilePrev() {
                 "Beli bakso",
                 "di warung pojok",
                 TaskStatus.PENDING.name,
-                "22-04-22",
+                Date(),
                 ""
             ),
             onStatusChange = {}

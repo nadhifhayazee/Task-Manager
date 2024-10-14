@@ -21,17 +21,16 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.nadhifhayazee.taskmanager.screen.createTask.CreateTaskScreen
 import com.nadhifhayazee.taskmanager.screen.gallery.GalleryScreen
 import com.nadhifhayazee.taskmanager.screen.home.HomeScreen
 import com.nadhifhayazee.taskmanager.screen.login.LoginScreen
@@ -42,8 +41,9 @@ import com.nadhifhayazee.taskmanager.ui.theme.AppTheme
 import kotlinx.serialization.Serializable
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier) {
+fun MainScreen(modifier: Modifier = Modifier, viewModel: MainViewModel = hiltViewModel()) {
     val navController = rememberNavController()
+    val selectedIndex by viewModel.selectedMenuIndex
 
     Surface(
         modifier = modifier.fillMaxSize(),
@@ -60,7 +60,9 @@ fun MainScreen(modifier: Modifier = Modifier) {
                         ScreenAccount.javaClass.name.toString()
                     )
                 ) {
-                    BottomNavigationBar(navController = navController)
+                    BottomNavigationBar(navController = navController, selectedIndex) {
+                        viewModel.onMenuSelected(it)
+                    }
                 }
             }
         ) { paddingValue ->
@@ -71,7 +73,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun BottomNavigationBar(navController: NavHostController) {
+fun BottomNavigationBar(navController: NavHostController, selectedIndex: Int, onMenuSelected: (Int) -> Unit) {
     val bottomNavItems = listOf(
         BottomNavItem(
             title = "Home",
@@ -97,19 +99,19 @@ fun BottomNavigationBar(navController: NavHostController) {
 
     NavigationBar(
     ) {
-        var selectedItemIndex by rememberSaveable { mutableIntStateOf(0) }
+
         bottomNavItems.forEachIndexed { index, screen ->
             NavigationBarItem(
                 icon = {
                     Icon(
-                        imageVector = if (selectedItemIndex == index) screen.selectedIcon else screen.unSelectedIcon,
+                        imageVector = if (selectedIndex == index) screen.selectedIcon else screen.unSelectedIcon,
                         contentDescription = screen.title
                     )
                 },
                 label = { Text(screen.title) },
-                selected = selectedItemIndex == index,
+                selected = selectedIndex == index,
                 onClick = {
-                    if (selectedItemIndex != index) {
+                    if (selectedIndex != index) {
                         when (screen.title) {
                             "Home" -> navController.navigate(ScreenHome)
                             "Task" -> navController.navigate(ScreenTask)
@@ -117,8 +119,7 @@ fun BottomNavigationBar(navController: NavHostController) {
                             "Account" -> navController.navigate(ScreenAccount)
                         }
                     }
-                    selectedItemIndex = index
-
+                    onMenuSelected(index)
                 }
             )
         }
@@ -153,7 +154,14 @@ fun NavigationHost(navController: NavHostController, paddingValue: PaddingValues
             HomeScreen(modifier = Modifier.padding(paddingValue))
         }
         composable<ScreenTask> {
-            TaskScreen()
+            TaskScreen(onNavigateToCreateTask = {
+                navController.navigate(ScreenCreateTask)
+            })
+        }
+        composable<ScreenCreateTask> {
+            CreateTaskScreen(modifier = Modifier.padding(paddingValue), onBackPressed = {
+                navController.popBackStack()
+            })
         }
         composable<ScreenGallery> {
             GalleryScreen()
@@ -185,6 +193,9 @@ object ScreenHome
 
 @Serializable
 object ScreenTask
+
+@Serializable
+object ScreenCreateTask
 
 @Serializable
 object ScreenGallery

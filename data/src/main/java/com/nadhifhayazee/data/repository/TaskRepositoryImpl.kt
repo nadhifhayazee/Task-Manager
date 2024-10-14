@@ -2,6 +2,7 @@ package com.nadhifhayazee.data.repository
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.QuerySnapshot
+import com.nadhifhayazee.data.model.Task
 import com.nadhifhayazee.domain.dto.RequestTask
 import com.nadhifhayazee.domain.dto.ResponseTask
 import com.nadhifhayazee.domain.repository.TaskRepository
@@ -32,12 +33,12 @@ class TaskRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun addUserTask(userId: String, request: RequestTask): Boolean {
+    override suspend fun addUserTask(userId: String, request: RequestTask): String {
         try {
             val taskId = UUID.randomUUID().toString()
             firebaseDb.collection("users").document(userId)
-                .collection("tasks").document(taskId).set(request).await()
-            return true
+                .collection("tasks").document(taskId).set(Task.mapFromRequestTask(request)).await()
+            return taskId
         } catch (e: Exception) {
             throw Exception("Tambah task gagal.")
         }

@@ -17,7 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val getUserTasksRealtimeUseCase: GetUserTasksRealtimeUseCase,
-    private val updateTaskFieldUseCase: UpdateTaskFieldUseCase
+    private val updateTaskFieldUseCase: UpdateTaskFieldUseCase,
 ) : ViewModel() {
 
     private val _pendingTasks = MutableStateFlow<List<ResponseTask>>(emptyList())
@@ -31,7 +31,11 @@ class HomeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            getUserTasksRealtimeUseCase(TaskStatus.PENDING.name).collectLatest {
+            getUserTasksRealtimeUseCase(
+                status = TaskStatus.PENDING.name,
+                orderBy = "dateTime",
+                sortType = "DESC"
+            ).collectLatest {
                 when (it) {
                     is ResultState.Success -> {
                         _pendingTasks.value = it.data
@@ -43,7 +47,7 @@ class HomeViewModel @Inject constructor(
             }
         }
         viewModelScope.launch {
-            getUserTasksRealtimeUseCase(TaskStatus.IN_PROGRESS.name).collectLatest {
+            getUserTasksRealtimeUseCase(status = TaskStatus.IN_PROGRESS.name).collectLatest {
                 when (it) {
                     is ResultState.Success -> {
                         _inProgressTasks.value = it.data
@@ -55,7 +59,7 @@ class HomeViewModel @Inject constructor(
             }
         }
         viewModelScope.launch {
-            getUserTasksRealtimeUseCase(TaskStatus.DONE.name).collectLatest {
+            getUserTasksRealtimeUseCase(status = TaskStatus.DONE.name).collectLatest {
                 when (it) {
                     is ResultState.Success -> {
                         _doneTasks.value = it.data
@@ -68,7 +72,7 @@ class HomeViewModel @Inject constructor(
 
     }
 
-        fun updateStatus(taskId: String, newStatus: String) {
+    fun updateStatus(taskId: String, newStatus: String) {
         viewModelScope.launch {
             updateTaskFieldUseCase(taskId, "status", newStatus).collectLatest {
 

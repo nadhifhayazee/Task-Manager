@@ -78,7 +78,8 @@ fun HomeScreen(modifier: Modifier = Modifier, viewModel: HomeViewModel = hiltVie
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
                         task = task,
                         onStatusChange = { newStatus ->
-                            viewModel.updateStatus(task.id, newStatus)
+                            if (newStatus != task.status)
+                                viewModel.updateStatus(task.id, newStatus)
                         }
                     )
                 }
