@@ -32,8 +32,9 @@ fun HomeScreen(modifier: Modifier = Modifier, viewModel: HomeViewModel = hiltVie
 
     val inProgressTasks by viewModel.inProgressTasks.collectAsState()
 
-    val doneTasks by viewModel.doneTasks.collectAsState()
-
+    val pendingTaskCount by viewModel.pendingTaskCount.collectAsState()
+    val inProgressTaskCount by viewModel.inProgressTaskCount.collectAsState()
+    val doneTasksCount by viewModel.doneTaskCount.collectAsState()
     Column(
         modifier
             .padding(16.dp)
@@ -53,12 +54,12 @@ fun HomeScreen(modifier: Modifier = Modifier, viewModel: HomeViewModel = hiltVie
 
                 TaskStatusCard(
                     status = TaskStatus.PENDING,
-                    totalCount = pendingTasks.size
+                    totalCount = pendingTaskCount
                 )
                 TaskStatusCard(
                     modifier = Modifier.fillMaxWidth(1f),
                     status = TaskStatus.IN_PROGRESS,
-                    totalCount = inProgressTasks.size
+                    totalCount = inProgressTaskCount
                 )
 
 
@@ -66,7 +67,7 @@ fun HomeScreen(modifier: Modifier = Modifier, viewModel: HomeViewModel = hiltVie
             TaskStatusCard(
                 modifier = Modifier.fillMaxWidth(),
                 status = TaskStatus.DONE,
-                totalCount = doneTasks.size
+                totalCount = doneTasksCount
             )
         }
 

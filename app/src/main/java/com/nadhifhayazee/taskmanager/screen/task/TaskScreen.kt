@@ -3,13 +3,18 @@ package com.nadhifhayazee.taskmanager.screen.task
 import android.app.DatePickerDialog
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -31,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.nadhifhayazee.taskmanager.component.TaskTile
 import com.nadhifhayazee.taskmanager.ui.theme.AppTheme
+import com.nadhifhayazee.taskmanager.util.DateUtil
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -53,9 +59,6 @@ fun TaskScreen(
         viewModel.getTasks(selectedDate)
     }
 
-//    LaunchedEffect(Unit) {
-//        viewModel.getUrlFile()
-//    }
 
     Column(
         modifier = modifier
@@ -65,19 +68,19 @@ fun TaskScreen(
         TopAppBar(
             title = { Text("Tasks") },
             actions = {
-                // Create Task Button
                 TextButton(onClick = {
                     onNavigateToCreateTask()
                 }) {
                     Text("Buat Task", fontSize = 16.sp, color = MaterialTheme.colorScheme.primary)
                 }
-                // Date Selector Button
-                SelectDateButton(selectedDateString) { newDate, date ->
-                    selectedDateString = newDate
-                    selectedDate = date
-                }
+
             }
         )
+
+        SelectDateButton(selectedDateString) { newDate, date ->
+            selectedDateString = newDate
+            selectedDate = date
+        }
 
         if (tasks.isNotEmpty()) {
             LazyColumn(
@@ -118,12 +121,12 @@ fun SelectDateButton(selectedDate: String, onDateSelected: (String, Date) -> Uni
     val datePicker = DatePickerDialog(
         context,
         { _, year, month, day ->
-            val newDateStr = String.format("%02d-%02d-%04d", day, month + 1, year)
             val date = Calendar.getInstance().apply {
                 set(Calendar.YEAR, year)
                 set(Calendar.MONTH, month) // Month is 0-based
                 set(Calendar.DAY_OF_MONTH, day)
             }.time  //
+            val newDateStr = DateUtil.formatDate(date, "dd MMM yyyy")
             onDateSelected(newDateStr, date)
         },
         calendar.get(Calendar.YEAR),
@@ -131,14 +134,33 @@ fun SelectDateButton(selectedDate: String, onDateSelected: (String, Date) -> Uni
         calendar.get(Calendar.DAY_OF_MONTH)
     )
 
-    OutlinedButton(onClick = { datePicker.show() }, colors = ButtonDefaults.buttonColors()) {
-        Text(text = selectedDate)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            Icons.Filled.Search,
+            contentDescription = "search icon",
+            modifier = Modifier
+                .size(20.dp)
+        )
+        OutlinedButton(
+            onClick = { datePicker.show() },
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+            modifier = Modifier
+                .padding(start = 16.dp)
+                .weight(1f)
+        ) {
+            Text(text = selectedDate)
+        }
     }
+
 }
 
 fun todayAsString(): String {
-    val dateFormat = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault())
-    return dateFormat.format(Date())
+    return DateUtil.formatDate(Date(), "dd MMM yyyy")
 }
 
 @Preview(showBackground = true)

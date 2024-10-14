@@ -56,4 +56,9 @@ object DateUtil {
         val dateFormat = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale("id", "ID")) // Indonesian locale
         return dateFormat.format(timestamp)
     }
+
+    fun formatDate(timestamp: Date, format:String): String {
+        val dateFormat = SimpleDateFormat(format, Locale("id", "ID")) // Indonesian locale
+        return dateFormat.format(timestamp)
+    }
 }

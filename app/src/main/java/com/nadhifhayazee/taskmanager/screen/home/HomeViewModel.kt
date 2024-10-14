@@ -7,11 +7,13 @@ import com.nadhifhayazee.domain.dto.ResultState
 import com.nadhifhayazee.domain.usecase.GetUserTasksRealtimeUseCase
 import com.nadhifhayazee.domain.usecase.UpdateTaskFieldUseCase
 import com.nadhifhayazee.taskmanager.model.TaskStatus
+import com.nadhifhayazee.taskmanager.util.DateUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,15 +28,26 @@ class HomeViewModel @Inject constructor(
     private val _inProgressTasks = MutableStateFlow<List<ResponseTask>>(emptyList())
     val inProgressTasks get() = _inProgressTasks.asStateFlow()
 
-    private val _doneTasks = MutableStateFlow<List<ResponseTask>>(emptyList())
-    val doneTasks get() = _doneTasks.asStateFlow()
+    private val _pendingTaskCount = MutableStateFlow<Int>(0)
+    val pendingTaskCount get() = _pendingTaskCount.asStateFlow()
+
+    private val _inProgressTaskCount = MutableStateFlow<Int>(0)
+    val inProgressTaskCount get() = _inProgressTaskCount.asStateFlow()
+
+    private val _doneTaskCount = MutableStateFlow<Int>(0)
+    val doneTaskCount get() = _doneTaskCount.asStateFlow()
+
+    private val todayDate = Date()
 
     init {
         viewModelScope.launch {
             getUserTasksRealtimeUseCase(
                 status = TaskStatus.PENDING.name,
+                startTime = DateUtil.selectedDateStartTime(todayDate),
+                endTime = DateUtil.getEndOfCurrentMonth(),
                 orderBy = "dateTime",
-                sortType = "DESC"
+                sortType = "ASC",
+                limit = 3
             ).collectLatest {
                 when (it) {
                     is ResultState.Success -> {
@@ -47,7 +60,14 @@ class HomeViewModel @Inject constructor(
             }
         }
         viewModelScope.launch {
-            getUserTasksRealtimeUseCase(status = TaskStatus.IN_PROGRESS.name).collectLatest {
+            getUserTasksRealtimeUseCase(
+                status = TaskStatus.IN_PROGRESS.name,
+                startTime = DateUtil.selectedDateStartTime(todayDate),
+                endTime = DateUtil.getEndOfCurrentMonth(),
+                orderBy = "dateTime",
+                sortType = "ASC",
+                limit = 3
+            ).collectLatest {
                 when (it) {
                     is ResultState.Success -> {
                         _inProgressTasks.value = it.data
@@ -58,18 +78,24 @@ class HomeViewModel @Inject constructor(
 
             }
         }
+
         viewModelScope.launch {
-            getUserTasksRealtimeUseCase(status = TaskStatus.DONE.name).collectLatest {
+            getUserTasksRealtimeUseCase().collectLatest {
                 when (it) {
                     is ResultState.Success -> {
-                        _doneTasks.value = it.data
+                        val pending = it.data.filter { it.status == TaskStatus.PENDING.name }.size
+                        val inProgress =
+                            it.data.filter { it.status == TaskStatus.IN_PROGRESS.name }.size
+                        val done = it.data.filter { it.status == TaskStatus.DONE.name }.size
+                        _pendingTaskCount.value = pending
+                        _inProgressTaskCount.value = inProgress
+                        _doneTaskCount.value = done
                     }
 
                     else -> {}
                 }
             }
         }
-
     }
 
     fun updateStatus(taskId: String, newStatus: String) {

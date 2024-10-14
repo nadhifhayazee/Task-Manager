@@ -7,6 +7,7 @@ import android.provider.OpenableColumns
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +17,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,6 +30,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -56,16 +59,24 @@ fun CreateTaskScreen(
 
     var selectedDocument by remember { mutableStateOf<Uri?>(null) }
 
+    var loadingState by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         viewModel.addState.collectLatest {
             when (it) {
                 is ResultState.Success -> {
+                    loadingState = false
                     if (it.data) {
                         onBackPressed()
                     }
                 }
 
+                is ResultState.Loading -> {
+                    loadingState = true
+                }
+
                 is ResultState.Error -> {
+                    loadingState = false
                     Toast.makeText(context, it.throwable.message, Toast.LENGTH_SHORT).show()
 
                 }
@@ -133,6 +144,10 @@ fun CreateTaskScreen(
 
             UploadDocumentButton { uri ->
                 selectedDocument = uri
+            }
+
+            AnimatedVisibility(loadingState, modifier.align(Alignment.CenterHorizontally)) {
+                CircularProgressIndicator()
             }
 
             CustomButton(

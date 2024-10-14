@@ -165,7 +165,7 @@ fun NavigationHost(navController: NavHostController, paddingValue: PaddingValues
             })
         }
         composable<ScreenGallery> {
-            GalleryScreen()
+            GalleryScreen(modifier = Modifier.padding(paddingValue))
         }
         composable<ScreenAccount> {
             AccountScreen(modifier = Modifier.padding(paddingValue))
