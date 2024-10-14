@@ -30,6 +30,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.nadhifhayazee.taskmanager.screen.account.AccountScreen
 import com.nadhifhayazee.taskmanager.screen.createTask.CreateTaskScreen
 import com.nadhifhayazee.taskmanager.screen.gallery.GalleryScreen
 import com.nadhifhayazee.taskmanager.screen.home.HomeScreen
@@ -167,7 +168,7 @@ fun NavigationHost(navController: NavHostController, paddingValue: PaddingValues
             GalleryScreen()
         }
         composable<ScreenAccount> {
-            GalleryScreen()
+            AccountScreen(modifier = Modifier.padding(paddingValue))
         }
     }
 }

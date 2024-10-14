@@ -9,5 +9,6 @@ interface UserRepository {
     suspend fun getAllUser(): List<ResponseUser>
     suspend fun getUserByEmailPassword(email: String, password: String): ResponseUser?
     suspend fun getUserByEmail(email: String): ResponseUser?
+    suspend fun getUserById(id: String): ResponseUser?
     suspend fun addUser(request: RequestRegister): ResponseUser
 }

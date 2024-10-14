@@ -29,9 +29,11 @@ fun CustomTextField(
     onTextChange: (String) -> Unit,
     label: String,
     placeholder: String,
-    keyboardType: KeyboardType = KeyboardType.Text
+    keyboardType: KeyboardType = KeyboardType.Text,
+    defaultValue: String = "",
+    enabled: Boolean = true
 ) {
-    var text by remember { mutableStateOf("") }
+    var text by remember { mutableStateOf(defaultValue) }
 
     TextField(
         value = text,
@@ -40,6 +42,7 @@ fun CustomTextField(
             onTextChange(newText)
         },
         label = { Text(label) },
+        enabled = enabled,
         placeholder = { Text(placeholder) },
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         visualTransformation = if (keyboardType != KeyboardType.Password) VisualTransformation.None else PasswordVisualTransformation(),
@@ -47,7 +50,10 @@ fun CustomTextField(
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
             focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
-            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurface
+            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurface,
+            disabledContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+            disabledTextColor =  MaterialTheme.colorScheme.onSurface,
+            disabledIndicatorColor = Color.Transparent
         ),
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier
@@ -62,6 +68,6 @@ fun CustomTextField(
 @Composable
 private fun CustomTextFieldPrev() {
     AppTheme {
-        CustomTextField(Modifier, onTextChange = {}, "email", "masukkan email", KeyboardType.Email)
+        CustomTextField(Modifier, onTextChange = {}, "email", "masukkan email", KeyboardType.Email, enabled = false)
     }
 }

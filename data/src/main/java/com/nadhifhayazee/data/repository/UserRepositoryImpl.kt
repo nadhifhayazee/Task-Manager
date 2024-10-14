@@ -50,6 +50,26 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getUserById(id: String): ResponseUser? {
+        try {
+            val snapshot = firebaseDb.collection("users")
+                .document(id)
+                .get().await()
+            if (snapshot.exists()) {
+                val user =  snapshot.data
+                return ResponseUser(
+                    id,
+                    user?.get("email").toString(),
+                    user?.get("username").toString(),
+                    ""
+                )
+            }
+            return null
+        } catch (e: Exception) {
+            return null
+        }
+    }
+
     override suspend fun addUser(request: RequestRegister): ResponseUser {
         try {
             val user = User(
