@@ -7,10 +7,12 @@ import com.google.firebase.firestore.firestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.storage
 import com.nadhifhayazee.data.cache.SharedPrefManager
+import com.nadhifhayazee.data.repository.GalleryRepositoryImpl
 import com.nadhifhayazee.data.repository.StorageRepositoryImpl
 import com.nadhifhayazee.data.repository.TaskRepositoryImpl
 import com.nadhifhayazee.data.repository.UserRepositoryImpl
 import com.nadhifhayazee.domain.cache.LocalCache
+import com.nadhifhayazee.domain.repository.GalleryRepository
 import com.nadhifhayazee.domain.repository.StorageRepository
 import com.nadhifhayazee.domain.repository.TaskRepository
 import com.nadhifhayazee.domain.repository.UserRepository
@@ -62,5 +64,11 @@ class AppModule {
     @Singleton
     fun provideStorageRepository(storage: FirebaseStorage): StorageRepository {
         return StorageRepositoryImpl(storage)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGalleryRepository(storage: FirebaseStorage): GalleryRepository {
+        return GalleryRepositoryImpl(storage);
     }
 }
